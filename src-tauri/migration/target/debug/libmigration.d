@@ -1,0 +1,1 @@
+/Users/d-lyw/D-lyw/Rust-Workspace/tauri-first/src-tauri/migration/target/debug/libmigration.rlib: /Users/d-lyw/D-lyw/Rust-Workspace/tauri-first/src-tauri/migration/src/lib.rs /Users/d-lyw/D-lyw/Rust-Workspace/tauri-first/src-tauri/migration/src/m20220101_000001_create_table.rs
