@@ -5,18 +5,14 @@ mod commands;
 mod service;
 mod utils;
 pub use commands::todo;
-use std::env;
+use std::{env, sync::OnceLock};
 pub use utils::*;
 
 // use anyhow::Result;
 use dotenv::dotenv;
 use tauri::{CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+pub static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
@@ -33,13 +29,20 @@ async fn main() {
     tauri::Builder::default()
         .system_tray(system_tray)
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_authenticator::init())
         .invoke_handler(tauri::generate_handler![
-            greet,
             todo::add_todo_item,
             todo::query_list_by_page,
             todo::delete_item_by_id,
             todo::switch_item_status
         ])
+        .setup(|app| {
+            APP.set(app.handle())
+                .unwrap_or_else(|_| panic!("Failed to initialize APP"));
+
+            init_db();
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
