@@ -76,16 +76,16 @@
 }
 
 /* Window Header Titlebar Style */
-.titlebar {
-  height: 28px;
+/* .titlebar { */
+  /* height: 28px; */
   /* background: #329ea3; */
   /* background: #2c2f30fb; */
-  background: transparent;
+  /* background: transparent;
   user-select: none;
   display: flex;
   justify-content: flex-start;
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-}
+  right: 0; */
+/* } */

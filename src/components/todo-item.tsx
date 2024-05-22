@@ -1,4 +1,4 @@
-import { TodoItem } from "../App";
+import { TodoItem } from "@/pages/todo";
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/components/ui/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"

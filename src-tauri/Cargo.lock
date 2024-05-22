@@ -4792,6 +4792,8 @@ dependencies = [
  "tauri-plugin-authenticator",
  "tauri-plugin-store",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

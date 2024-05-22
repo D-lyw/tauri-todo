@@ -10,7 +10,10 @@ pub use utils::*;
 
 // use anyhow::Result;
 use dotenv::dotenv;
-use tauri::{CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem};
+use tauri::{
+    CustomMenuItem, Menu, MenuEntry, MenuItem, Submenu, SystemTray, SystemTrayMenu,
+    SystemTrayMenuItem,
+};
 
 pub static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
@@ -19,17 +22,27 @@ async fn main() {
     dotenv().ok();
 
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-    let hide = CustomMenuItem::new("hide".to_string(), "Hide");
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(quit)
-        .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(hide); // insert the menu items here
-    let system_tray = SystemTray::new().with_menu(tray_menu);
+    let close = CustomMenuItem::new("close".to_string(), "Close");
+
+    let submenu = Submenu::new("File", Menu::new().add_item(quit).add_item(close));
+    let menu = Menu::default()
+        .add_native_item(MenuItem::Copy)
+        .add_item(CustomMenuItem::new("hide", "Hide"))
+        .add_submenu(submenu); // configure the menu
+
+    // let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+    // let hide = CustomMenuItem::new("hide".to_string(), "Hide");
+    // let tray_menu = SystemTrayMenu::new()
+    //     .add_item(quit)
+    //     .add_native_item(SystemTrayMenuItem::Separator)
+    //     .add_item(hide); // insert the menu items here
+    // let system_tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .system_tray(system_tray)
+        .menu(menu)
+        // .system_tray(system_tray)
         .plugin(tauri_plugin_store::Builder::default().build())
-        .plugin(tauri_plugin_authenticator::init())
+        // .plugin(tauri_plugin_authenticator::init())
         .invoke_handler(tauri::generate_handler![
             todo::add_todo_item,
             todo::query_list_by_page,

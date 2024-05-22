@@ -35,7 +35,7 @@
       {
         "title": "Todos",
         "resizable": false,
-        "width": 800,
+        "width": 900,
         "height": 600,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true
