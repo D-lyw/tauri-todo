@@ -22,7 +22,7 @@ const Sidebar = () => {
         </div>
         <div className='flex-shrink-0 fixed bottom-3'>
             <Button variant="ghost" size="icon" onClick={() => {
-                const settingWindow = new WebviewWindow('Setting', {
+                new WebviewWindow('Setting', {
                     url: '/setting',
                     resizable: false,
                     focus: true,

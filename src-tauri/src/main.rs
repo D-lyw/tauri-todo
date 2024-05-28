@@ -4,21 +4,23 @@
 mod commands;
 mod service;
 mod utils;
+mod setup;
+mod error;
 pub use commands::todo;
 use std::{env, sync::OnceLock};
-pub use utils::*;
 
 // use anyhow::Result;
 use dotenv::dotenv;
 use tauri::{
-    CustomMenuItem, Menu, MenuEntry, MenuItem, Submenu, SystemTray, SystemTrayMenu,
-    SystemTrayMenuItem,
+    CustomMenuItem, Manager, Menu, MenuEntry, MenuItem, Submenu, SystemTray, SystemTrayMenu, SystemTrayMenuItem
 };
 
 pub static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
 #[tokio::main]
 async fn main() {
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
+
     dotenv().ok();
 
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -49,13 +51,7 @@ async fn main() {
             todo::delete_item_by_id,
             todo::switch_item_status
         ])
-        .setup(|app| {
-            APP.set(app.handle())
-                .unwrap_or_else(|_| panic!("Failed to initialize APP"));
-
-            init_db();
-            Ok(())
-        })
+        .setup(setup::setup)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
