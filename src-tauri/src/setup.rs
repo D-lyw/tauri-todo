@@ -1,17 +1,26 @@
-use std::env;
-
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{DatabaseConnection, SqlxSqliteConnector};
 use sqlx::SqlitePool;
-use tauri::{api::path::app_data_dir, App, Config, Manager};
+use std::env;
+use std::fs::{self, OpenOptions};
+use std::sync::Arc;
+use tauri::{
+    api::path::{app_data_dir, app_log_dir},
+    App, Config, Manager,
+};
+use tracing::info;
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 pub fn setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     let handler = app.handle();
+    tracing(&handler.config());
+
     tokio::spawn(async move {
         let db_conn = get_database_pool(&handler.config()).await;
         handler.manage(db_conn);
     });
 
+    info!("Finished Setup");
     Ok(())
 }
 
@@ -43,4 +52,45 @@ pub fn get_db_path(config: &Config) -> String {
             app_data_dir.join("db.sqlite").to_string_lossy()
         )
     }
+}
+
+pub fn tracing(config: &Config) {
+    let filter_layer = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
+    let fmt_layer = fmt::layer()
+        .pretty()
+        .with_level(true)
+        .with_target(true)
+        .with_ansi(false);
+
+    // log save to log file in production mode
+    if cfg!(debug_assertions) {
+        tracing_subscriber::registry()
+            .with(filter_layer)
+            .with(fmt_layer)
+            .init();
+    } else {
+        let file_path = app_log_dir(config)
+            .expect("log directory not specified")
+            .join("todo.log");
+        // directory must exist
+        if let Some(parent) = file_path.parent() {
+            fs::create_dir_all(parent).expect("Failed to create log directory");
+        }
+
+        // 使用 OpenOptions 以追加模式打开文件
+        let file = OpenOptions::new()
+            .create(true) // 如果文件不存在则创建
+            .append(true) // 以追加模式打开
+            .open(&file_path)
+            .expect("Failed to open log file");
+
+        let file_layer = fmt::layer().with_ansi(false).with_writer(Arc::new(file));
+
+        tracing_subscriber::registry()
+            .with(filter_layer)
+            .with(fmt_layer)
+            .with(file_layer)
+            .init();
+    };
 }

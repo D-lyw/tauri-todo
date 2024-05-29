@@ -8,7 +8,6 @@ use sea_orm::{Database, DatabaseConnection, DbConn, DbErr, SqlxSqliteConnector};
 use sqlx::SqlitePool;
 use tauri::App;
 
-use crate::APP;
 
 // pub async fn establish_connection() -> Result<DbConn, DbErr> {
 //     let database_url = format!("sqlite://{}?mode=rwc", get_db_path());
