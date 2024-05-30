@@ -10,6 +10,7 @@ use tauri::{
 };
 use tracing::info;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use console_subscriber;
 
 pub fn setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     let handler = app.handle();
@@ -68,6 +69,7 @@ pub fn tracing(config: &Config) {
         tracing_subscriber::registry()
             .with(filter_layer)
             .with(fmt_layer)
+            .with(console_subscriber::spawn())
             .init();
     } else {
         let file_path = app_log_dir(config)
@@ -91,6 +93,7 @@ pub fn tracing(config: &Config) {
             .with(filter_layer)
             .with(fmt_layer)
             .with(file_layer)
+            .with(console_subscriber::spawn())
             .init();
     };
 }
